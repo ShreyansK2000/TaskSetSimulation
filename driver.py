@@ -112,12 +112,16 @@ def main():
 
         print("Saving figure for num tasks: {}".format(num_tasks))
 
-        # fig = plt.figure(figsize=(8, 8))
-        plt.plot(task_set_utilizations, fraction_RM_schedulable, marker='.', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=4, label="Fraction RM Schedulable")
-        plt.plot(task_set_utilizations, fraction_SPTF_schedulable, marker='^',markerfacecolor='red', markersize=10, color='lightcoral', linewidth=4, label="Fraction SPTF Schedulable")
-        plt.plot(task_set_utilizations, fraction_MUF_schedulable,marker='s', markerfacecolor='green', markersize=10, color='olive', linewidth=4, label="Fraction MUF Schedulable")
+        fig = plt.figure(figsize=(8, 8))
+        ax = fig.add_subplot(111)
+        ax.plot(task_set_utilizations, fraction_RM_schedulable, marker='.', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=4, label="Fraction RM Schedulable")
+        ax.plot(task_set_utilizations, fraction_SPTF_schedulable, marker='^',markerfacecolor='red', markersize=10, color='lightcoral', linewidth=4, label="Fraction SPTF Schedulable")
+        ax.plot(task_set_utilizations, fraction_MUF_schedulable,marker='s', markerfacecolor='green', markersize=10, color='olive', linewidth=4, label="Fraction MUF Schedulable")
+        ax.set_xlabel('Utilization')
+        ax.set_ylabel('Fraction Schedulable Task')
         plt.legend(loc="best")
-        plt.show()
+        plt.savefig('figs/{}TasksSchedulability.png'.format(num_tasks))
+        # plt.show()
         # ax = fig.add_subplot(111,projection='3d')
         print("\n")
     # # Plotting simplex stuff
