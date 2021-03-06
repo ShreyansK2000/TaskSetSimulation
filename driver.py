@@ -34,6 +34,11 @@ def RTASchedulable(priority_sorted_task_set):
     return 1
 
 def RM_RTA_Schedulable(task_set):
+
+    # Check Hyperbolic bound, faster than RTA
+    if np.prod([(task.Utilization + 1) for task in task_set]) <= 2:
+        return 1
+
     # Sort tasks with ascending order of periods
     task_set.sort(key=lambda task: task.Period)
     return RTASchedulable(task_set)
