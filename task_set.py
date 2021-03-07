@@ -10,7 +10,7 @@ def lognuniform(low=1, high=6, base=10):
 def getTaskSet(utilization_vector, utilization):
     task_set = []
     for i in range(len(utilization_vector)):
-        period = lognuniform(1, 6, 10)
+        period = lognuniform(1, 3, 10)
         wcet = utilization_vector[i] * period * utilization
         task_set.append(Task(Period=period, WCET=wcet, Utilization=utilization_vector[i] * utilization))
 
