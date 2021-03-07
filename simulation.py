@@ -10,20 +10,14 @@ def add_jobs(t, arrived_jobs, task_set):
         if t % task.Period == 0:
             arrived_jobs.append(Job(t, task.WCET, task.Period, i, executing=False)) 
 
+        
+
 def Simulation(n, task_set):
 
     num_time_units = 1000
     num_jobs_started = 0
     num_jobs_completed_in_time = 0
     arrived_jobs = [Job(0, task.WCET, task.Period, i, False) for i, task in enumerate(task_set)]
-
-    #=============Only for DEBUG======================
-    i = 1
-    for job in arrived_jobs:
-        print("job" + str(i) + ' ' + str(job.priority))
-        i += 1
-    #=================================================
-
     current_job = None
     for t in range(num_time_units + 1):
 
@@ -32,41 +26,69 @@ def Simulation(n, task_set):
             # add to readyqueue if arrived
             add_jobs(t, arrived_jobs, task_set)
 
-        # Sort the ready queue by job priority (schedule function responsible for this)
-        arrived_jobs.sort(key=lambda job: job.priority)         
+        if current_job is not None:
+            if current_job.executing:
 
+                current_job.progress_job()
 
-        # Relevant at t = 0, no starting job
-        if current_job is None:
-            current_job = arrived_jobs.pop(0)
+                if current_job.job_complete(): 
 
-        # check if next item in ready queue is higher priority
-        # semantically: priority(0) > priority(1)
-        # but in code, we check for smaller index
-        if arrived_jobs[0].priority < current_job.priority:
-            current_job.pause_job()
-            arrived_jobs.append(current_job)
-            current_job = arrived_jobs.pop(0)
+                    if not current_job.is_job_late(t):
+                        num_jobs_completed_in_time += 1
 
-        if current_job.executing:
-            current_job.progress_job()
-            if current_job.job_complete(): 
-                if not current_job.is_job_late():
-                    num_jobs_completed_in_time += 1
+                    current_job = None
+                    # # start next job at same time instance
+                    # # assume 0 context switching overhead
+                    # current_job = arrived_jobs.pop(0)
+                    # current_job.start_job(t)
+                    # num_jobs_started += 1 
 
-                # start next job at same time instance
-                # assume 0 context switching overhead
-                current_job = arrived_jobs.pop(0)
+            elif current_job.execution_time == current_job.remaining_exec_time:
                 current_job.start_job(t)
                 num_jobs_started += 1 
+                print("HERE")
+            else:
+                current_job.resume_job()
+                print("HERE 1")
 
-        elif current_job.execution_time == current_job.remaining_exec_time:
-            current_job.start_job(t)
-            num_jobs_started += 1 
-        else:
-            current_job.resume_job()
+        if len(arrived_jobs) > 0:
+            # Sort the ready queue by job priority (schedule function responsible for this)
+            arrived_jobs.sort(key=lambda job: job.priority)
+
+            # Relevant at t = 0 or processor finished previous job
+            if current_job is None:
+                current_job = arrived_jobs.pop(0)
+
+                if current_job.execution_time == current_job.remaining_exec_time:
+                    current_job.start_job(t)
+                    num_jobs_started += 1 
+                    # print("HERE")
+                else:
+                    current_job.resume_job()
+                    # print("HERE 1")
+
+            # check if next item in ready queue is higher priority
+            # semantically: priority(0) > priority(1)
+            # but in code, we check for smaller index
+            elif arrived_jobs[0].priority < current_job.priority:
+                current_job.pause_job()
+
+                arrived_jobs.append(current_job)
+
+                current_job = arrived_jobs.pop(0)
+
+                # A new job arrives
+                if current_job.execution_time == current_job.remaining_exec_time:
+                    current_job.start_job(t)
+                    num_jobs_started += 1 
+                    # print("HERE 3")
+                else:   # Continue the already executing job
+                    current_job.resume_job()
+                    print("HERE 4")
+        
         
         # do stuff
+    # print(num_jobs_started, num_jobs_completed_in_time)
     return num_jobs_started, num_jobs_completed_in_time
 
 def RM_Simulation(n, task_set):
@@ -90,12 +112,12 @@ def simulation():
     # num_tasks_test_arr = [8, 16, 32, 64]
     task_set_utilizations = [round(0.10 * i, 2) for i in range(1, 11)]
 
-    num_task_sets = 1 # For Testing
+    num_task_sets = 100 # For Testing
     # num_time_units = 100000
 
     # num_task_sets = 100000
 
-    num_tasks = 2
+    num_tasks = 16
     print("Num Tasks: {}".format(num_tasks))
 
     fraction_RM_successful = [0 for i in range(1, 11)]
@@ -132,25 +154,25 @@ def simulation():
             completed = 0
 
             started, completed = RM_Simulation(num_tasks, task_sets[l])
-            num_rm_started = started
+            num_rm_started += started
             num_successful_RM_completions +=  completed
 
             started, completed = SPTF_Simulation(num_tasks, task_sets[l])
-            num_sptf_started = started
+            num_sptf_started += started
             num_successful_SPTF_completions += completed
 
             started, completed = MUF_Simulation(num_tasks, task_sets[l])
-            num_muf_started = started
+            num_muf_started += started
             num_successful_MUF_completions +=  completed
-
+        # print("RM ", num_rm_started, num_successful_RM_completions)
                
-        fraction_RM_successful[j] = float(num_successful_RM_completions) / float(num_rm_started)
-        fraction_SPTF_successful[j] = float(num_successful_SPTF_completions) / float(num_sptf_started)
-        fraction_MUF_successful[j] = float(num_successful_MUF_completions) / float(num_muf_started)
+        fraction_RM_successful[j] = 100. * float(num_successful_RM_completions) / float(num_rm_started)
+        fraction_SPTF_successful[j] = 100. * float(num_successful_SPTF_completions) / float(num_sptf_started)
+        fraction_MUF_successful[j] = 100. * float(num_successful_MUF_completions) / float(num_muf_started)
 
-        print("Fraction RM Completed: {}".format(round(fraction_RM_successful[j], 2)))
-        print("Fraction SPTF Completed: {}".format(round(fraction_SPTF_successful[j], 2)))
-        print("Fraction MUF Completed: {}".format(round(fraction_MUF_successful[j], 2)))
+        print("Percentage RM Completed: {}%".format(round(fraction_RM_successful[j], 2)))
+        print("Percentage SPTF Completed: {}%".format(round(fraction_SPTF_successful[j], 2)))
+        print("Percentage MUF Completed: {}%".format(round(fraction_MUF_successful[j], 2)))
 
         print("\n-------------------------------------------\n")
 
