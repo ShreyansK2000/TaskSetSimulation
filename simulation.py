@@ -14,7 +14,7 @@ def add_jobs(t, arrived_jobs, task_set):
 
 def Simulation(n, task_set):
 
-    num_time_units = 1000
+    num_time_units = 10000
     num_jobs_started = 0
     num_jobs_completed_in_time = 0
     arrived_jobs = [Job(0, task.WCET, task.Period, i, False) for i, task in enumerate(task_set)]
@@ -84,11 +84,11 @@ def Simulation(n, task_set):
                     # print("HERE 3")
                 else:   # Continue the already executing job
                     current_job.resume_job()
-                    print("HERE 4")
+
         
         
         # do stuff
-    # print(num_jobs_started, num_jobs_completed_in_time)
+    # print("End of simulation ", num_jobs_started, num_jobs_completed_in_time, len(task_set))
     return num_jobs_started, num_jobs_completed_in_time
 
 def RM_Simulation(n, task_set):

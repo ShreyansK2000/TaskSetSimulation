@@ -13,6 +13,9 @@ def getTaskSet(utilization_vector, utilization):
     for i in range(len(utilization_vector)):
         period = math.floor(lognuniform(1, 6, 10))
         wcet = math.floor(utilization_vector[i] * period * utilization)
-        task_set.append(Task(Period=math.floor(period), WCET=wcet, Utilization=utilization_vector[i] * utilization))
-
+        # if wcet == 0:
+            # wcet = 1
+            # print("BADDDDDD")
+        task_set.append(Task(Period=period, WCET=wcet, Utilization=utilization_vector[i] * utilization))
+    print("utilization ", sum (float(task.WCET)/float(task.Period) for task in task_set))
     return task_set
