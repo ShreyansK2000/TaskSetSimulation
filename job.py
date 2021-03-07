@@ -8,10 +8,11 @@ class Job():
     executing = False
     remaining_exec_time = 0
     priority = 0
+    late = False
 
-    def __init__(self, arrival_time, execution_time, priority, executing=False):
+    def __init__(self, arrival_time, execution_time, period, priority, executing=False):
         self.arrival_time = arrival_time
-        self.absolute_deadline = arrival_time + execution_time
+        self.absolute_deadline = arrival_time + period
         self.execution_time = execution_time
         self.executing = executing
         self.priority
@@ -20,6 +21,12 @@ class Job():
     def progress_job(self):
         if self.executing:
             self.remaining_exec_time -= 1
+
+    def job_complete(self):
+        return True if self.remaining_exec_time == 0 else False
+
+    def is_job_late(self, time):
+        return True if time > self.absolute_deadline else False
 
     def start_job(self, time):
         self.remaining_exec_time = self.execution_time

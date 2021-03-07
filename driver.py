@@ -3,147 +3,8 @@ from random_vector_generator import *
 from task_set import *
 import matplotlib.pyplot as plt
 import math
-from job import Job
-
-def RTASchedulable(priority_sorted_task_set):
-
-    for i, task in enumerate(priority_sorted_task_set):
-
-        tau_i = task
-        schedulable = 0
-
-        # For first iteration interference is the sum of HP execution times
-        interference = sum(task.WCET for task in priority_sorted_task_set[:i])
-
-        while schedulable == 0:
-            
-            # R_i^n
-            response_time = tau_i.WCET + interference
-
-            if response_time > tau_i.Period:  # Since we're considering implicit deadlines, check period      
-                return 0
-            
-            # Interference is the ceiling of the number of interruptions from higher priority tasks during execution
-            interference = sum(math.ceil(float(response_time) / float(tau_k.Period)) * tau_k.WCET for tau_k in priority_sorted_task_set[:i])
-            # for k in range(i):
-            #     tau_k = priority_sorted_task_set[k]
-            #     interference += math.ceil(float(response_time) / float(tau_k.Period)) * tau_k.WCET
-
-            if interference + tau_i.WCET <= response_time:
-                schedulable = 1
-
-    return 1
-
-def RM_RTA_Schedulable(task_set):
-
-    # Check Hyperbolic bound, faster than RTA
-    if np.prod([(task.Utilization + 1) for task in task_set]) <= 2:
-        return 1
-
-    # Sort tasks with ascending order of periods
-    task_set.sort(key=lambda task: task.Period)
-    return RTASchedulable(task_set)
-
-def SPTF_RTA_Schedulable(task_set):
-    # Sort tasks with ascending order of execution times
-    task_set.sort(key=lambda task: task.WCET)
-    return RTASchedulable(task_set)
-
-def MUF_RTA_Schedulable(task_set):
-    # Sort tasks with descending order of utilization
-    task_set.sort(key=lambda task: task.Utilization, reverse=True)
-    return RTASchedulable(task_set)
-
-
-# def Simulation(n, task_set):
-
-#     num_time_units = 20
-#     arrived_jobs
-#     for t in range(num_time_units + 1):
-        
-
-# def RM_Simulation(n, task_set):
-#     # Sort tasks with ascending order of periods
-#     task_set.sort(key=lambda task: task.Period)
-#     return Simulation(n, task_set)
-
-# def SPTF_Simulation(n, task_set):
-#     # Sort tasks with ascending order of execution times
-#     task_set.sort(key=lambda task: task.WCET)
-#     return Simulation(n, task_set)
-
-# def MUF_Simulation(n, task_set):
-#     # Sort tasks with descending order of utilization
-#     task_set.sort(key=lambda task: task.Utilization, reverse=True)
-#     return Simulation(n, task_set)
-
-# def simulation():
-
-#     # num_tasks_test_arr = [16]
-#     # num_tasks_test_arr = [8, 16, 32, 64]
-#     task_set_utilizations = [round(0.10 * i, 2) for i in range(1, 11)]
-
-#     num_task_sets = 100 # For Testing
-#     num_time_units = 100000
-
-#     # num_task_sets = 100000
-
-#     num_tasks = 2
-#     print("Num Tasks: {}".format(num_tasks))
-
-#     fraction_RM_successful = [0 for i in range(1, 21)]
-#     fraction_SPTF_successful = [0 for i in range(1, 21)]
-#     fraction_MUF_successful = [0 for i in range(1, 21)]
-    
-#     for j in range(len(task_set_utilizations)):
-
-#         utilization = task_set_utilizations[j]
-#         print("Utilization: {}\n".format(utilization))
-
-#         print("Generating Task Sets")
-#         scatter_arr = np.zeros(shape=(num_task_sets, num_tasks))
-
-#         # Create a list of task sets for current number of tasks        
-#         task_sets = []
-#         for k in range(num_task_sets):
-#             scatter_arr[k] = getUniformVector(num_tasks)
-#             task_sets.append(getTaskSet(scatter_arr[k], utilization))
-
-
-#         print("Start Testing Schedulability at current Utilization")
-#         num_successful_RM_completions = 0
-#         num_successful_SPTF_completions = 0
-#         num_successful_MUF_completions = 0
-#         for l in range(num_task_sets):
-#             num_successful_RM_completions += RM_RTA_Schedulable(num_tasks, task_sets[l])
-#             num_successful_SPTF_completions += SPTF_RTA_Schedulable(num_tasks, task_sets[l])
-#             num_successful_MUF_completions += MUF_RTA_Schedulable(num_tasks, task_sets[l])
-
-    
-#         # fraction_RM_successful[j] = float(num_RM_Schedulable) / float(num_task_sets)
-#         # fraction_SPTF_successful[j] = float(num_SPTF_Schedulable) / float(num_task_sets)
-#         # fraction_MUF_successful[j] = float(num_MUF_Schedulable) / float(num_task_sets)
-
-#         # print("Fraction RM Schedulable: {}".format(round(fraction_RM_successful[j], 2)))
-#         # print("Fraction SPTF Schedulable: {}".format(round(fraction_SPTF_successful[j], 2)))
-#         # print("Fraction MUF Schedulable: {}".format(round(fraction_MUF_successful[j], 2)))
-
-#         print("\n-------------------------------------------\n")
-
-#     print("Saving figure for num tasks: {}".format(num_tasks))
-
-#     fig = plt.figure(figsize=(8, 8))
-#     ax = fig.add_subplot(111)
-#     ax.plot(task_set_utilizations, fraction_RM_successful, marker='.', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=4, label="Fraction RM Schedulable")
-#     ax.plot(task_set_utilizations, fraction_SPTF_successful, marker='^',markerfacecolor='red', markersize=10, color='lightcoral', linewidth=4, label="Fraction SPTF Schedulable")
-#     ax.plot(task_set_utilizations, fraction_MUF_successful,marker='s', markerfacecolor='green', markersize=10, color='olive', linewidth=4, label="Fraction MUF Schedulable")
-#     ax.set_xlabel('Utilization')
-#     ax.set_ylabel('Fraction Schedulable Task')
-#     plt.legend(loc="best")
-#     plt.savefig('figs/{}TasksSchedulability.png'.format(num_tasks))
-#         # plt.show()
-#         # ax = fig.add_subplot(111,projection='3d')
-#     print("\n")
+from rta import *
+from simulation import *
 
 def main():
 
@@ -153,7 +14,7 @@ def main():
 
     
     # num_task_sets = 10 # For Testing
-    # num_task_sets = 100000
+    num_task_sets = 100000
     for i in range(len(num_tasks_test_arr)):
 
         num_tasks = num_tasks_test_arr[i]
@@ -229,4 +90,4 @@ def main():
     # plt.show()
 
 if __name__ == '__main__':
-    main()
+    simulation()
