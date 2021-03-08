@@ -14,7 +14,7 @@ def add_jobs(t, arrived_jobs, task_set):
 
 def Simulation(n, task_set):
 
-    num_time_units = 10000
+    num_time_units = 100000
     num_jobs_started = 0
     num_jobs_completed_in_time = 0
     arrived_jobs = [Job(0, task.WCET, task.Period, i, False) for i, task in enumerate(task_set)]
@@ -140,35 +140,46 @@ def simulation():
 
 
         # print("Start Testing Schedulability at current Utilization")
-        num_successful_RM_completions = 0
-        num_rm_started = 0
+        # num_successful_RM_completions = 0
+        # num_rm_started = 0
+        mean_percent_RM_completed = 0.
 
-        num_successful_SPTF_completions = 0
-        num_sptf_started = 0
+        # num_successful_SPTF_completions = 0
+        # num_sptf_started = 0
+        mean_percent_SPTF_completed = 0.
 
-        num_successful_MUF_completions = 0
-        num_muf_started = 0
-
+        # num_successful_MUF_completions = 0
+        # num_muf_started = 0
+        mean_percent_MUF_completed = 0.
+        
         for l in range(num_task_sets):
             started = 0
             completed = 0
 
             started, completed = RM_Simulation(num_tasks, task_sets[l])
-            num_rm_started += started
-            num_successful_RM_completions +=  completed
+            current_percentage_completed = 100. * float(completed) / float(started)
+            mean_percent_RM_completed += current_percentage_completed
+            # print("RM Task Set {} percentage completed: , Mean percentage total {}".format(current_percentage_completed, mean_percent_RM_completed)) 
 
             started, completed = SPTF_Simulation(num_tasks, task_sets[l])
-            num_sptf_started += started
-            num_successful_SPTF_completions += completed
+            current_percentage_completed = 100. * float(completed) / float(started)
+            mean_percent_SPTF_completed += current_percentage_completed
+            # print("SPTF Task Set {} percentage completed: , Mean percentage total {}".format(current_percentage_completed, mean_percent_SPTF_completed)) 
 
             started, completed = MUF_Simulation(num_tasks, task_sets[l])
-            num_muf_started += started
-            num_successful_MUF_completions +=  completed
+            current_percentage_completed = 100. * float(completed) / float(started)
+            mean_percent_MUF_completed += current_percentage_completed
+            # print("MUF Task Set {} percentage completed: , Mean percentage total {}".format(current_percentage_completed, mean_percent_SPTF_completed)) 
+
+        mean_percent_RM_completed = mean_percent_RM_completed / float(num_task_sets)
+        mean_percent_SPTF_completed = mean_percent_SPTF_completed / float(num_task_sets)
+        mean_percent_MUF_completed = mean_percent_MUF_completed / float(num_task_sets)
+        
         # print("RM ", num_rm_started, num_successful_RM_completions)
                
-        fraction_RM_successful[j] = 100. * float(num_successful_RM_completions) / float(num_rm_started)
-        fraction_SPTF_successful[j] = 100. * float(num_successful_SPTF_completions) / float(num_sptf_started)
-        fraction_MUF_successful[j] = 100. * float(num_successful_MUF_completions) / float(num_muf_started)
+        fraction_RM_successful[j] = mean_percent_RM_completed
+        fraction_SPTF_successful[j] = mean_percent_SPTF_completed
+        fraction_MUF_successful[j] = mean_percent_MUF_completed
 
         print("Percentage RM Completed: {}%".format(round(fraction_RM_successful[j], 2)))
         print("Percentage SPTF Completed: {}%".format(round(fraction_SPTF_successful[j], 2)))
@@ -180,11 +191,11 @@ def simulation():
 
     fig = plt.figure(figsize=(8, 8))
     ax = fig.add_subplot(111)
-    ax.plot(task_set_utilizations, np.array(fraction_RM_successful) * 100, marker='.', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=4, label="Fraction RM Completed")
-    ax.plot(task_set_utilizations, np.array(fraction_SPTF_successful) * 100, marker='^',markerfacecolor='red', markersize=10, color='lightcoral', linewidth=4, label="Fraction SPTF Completed")
-    ax.plot(task_set_utilizations, np.array(fraction_MUF_successful) * 100,marker='s', markerfacecolor='green', markersize=10, color='olive', linewidth=4, label="Fraction MUF Completed")
+    ax.plot(task_set_utilizations, np.array(fraction_RM_successful), marker='o', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=6, label="Percentage RM Jobs Completed")
+    ax.plot(task_set_utilizations, np.array(fraction_SPTF_successful), marker='^',markerfacecolor='red', markersize=8, color='lightcoral', linewidth=3, label="Percentage SPTF Jobs Completed")
+    ax.plot(task_set_utilizations, np.array(fraction_MUF_successful),marker='s', markerfacecolor='green', markersize=10, color='olive', linewidth=4, label="Percentage MUF Jobs Completed")
     ax.set_xlabel('Utilization')
-    ax.set_ylabel('Percentage Jobs Completed before Deadline')
+    ax.set_ylabel('Percentage Jobs Completed Successfully')
     plt.legend(loc="best")
     plt.savefig('figs/{}CompletionPercentage.png'.format(num_tasks))
         # plt.show()

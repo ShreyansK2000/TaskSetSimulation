@@ -11,11 +11,12 @@ def lognuniform(low=1, high=6, base=10):
 def getTaskSet(utilization_vector, utilization):
     task_set = []
     for i in range(len(utilization_vector)):
-        period = math.floor(lognuniform(1, 6, 10))
+        period = math.floor(lognuniform(1, 5, 10))
         wcet = math.floor(utilization_vector[i] * period * utilization)
         # if wcet == 0:
-            # wcet = 1
+        #     wcet = 1
             # print("BADDDDDD")
         task_set.append(Task(Period=period, WCET=wcet, Utilization=utilization_vector[i] * utilization))
-    print("utilization ", sum (float(task.WCET)/float(task.Period) for task in task_set))
+
+    # print("utilization ", sum(float(task.WCET)/float(task.Period) for task in task_set))
     return task_set
