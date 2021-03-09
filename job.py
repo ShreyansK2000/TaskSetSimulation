@@ -40,9 +40,8 @@ class Job():
         if not self.executing:
             self.executing = True
 
-    def deadline_missed(self, time):
-        return time > self.absolute_deadline
 
+    # Functions that make the class printable
     # def __repr__(self):
     #     return "priority of this job" % (self.priority)
 

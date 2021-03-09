@@ -6,7 +6,7 @@ import math
 from rta import *
 from simulation import *
 
-def main():
+def rta_driver():
 
     # num_tasks_test_arr = [3]
     num_tasks_test_arr = [8, 16, 32, 64]
@@ -90,4 +90,8 @@ def main():
     # plt.show()
 
 if __name__ == '__main__':
+    # Comment or uncomment to run RTA for the three policies
+    # rta_driver()
+
+    # Comment of uncomment to run Simulation for the three policies
     simulation()

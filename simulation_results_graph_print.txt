@@ -1,0 +1,24 @@
+
+    task_set_utilizations = [round(0.10 * i, 2) for i in range(1, 11)]
+
+    # Period in [10, 100000]
+    # fraction_RM_successful =    [100., 100., 99.99, 99.99, 99.99, 99.99, 99.99, 99.99, 99.98, 99.96]
+    # fraction_SPTF_successful =  [100., 100., 99.99, 99.99, 99.99, 99.99, 99.99, 99.99, 99.98, 99.93]
+    # fraction_MUF_successful =   [96.77, 91.12, 86.49, 81.97, 72.49, 66.78, 60.56, 52.83, 43.15, 36.42]
+
+    # Period in [1000, 100000]
+    fraction_RM_successful =    [99.96, 99.94, 99.88, 99.86, 99.78, 99.74, 99.64, 99.51, 99.29, 98.79]
+    fraction_SPTF_successful =  [99.96, 99.94, 99.88, 99.85, 99.74, 99.73, 99.61, 99.42, 99.15, 98.56]
+    fraction_MUF_successful =   [99.41, 97.69, 95.11, 91.57, 86.79, 81.21, 72.90, 63.09, 54.35, 53.03]
+
+    fig = plt.figure(figsize=(8, 8))
+    ax = fig.add_subplot(111)
+    ax.plot(task_set_utilizations, np.array(fraction_RM_successful), marker='o', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=6, label="Percentage RM Jobs Completed")
+    ax.plot(task_set_utilizations, np.array(fraction_SPTF_successful), marker='^',markerfacecolor='red', markersize=8, color='lightcoral', linewidth=3, label="Percentage SPTF Jobs Completed")
+    ax.plot(task_set_utilizations, np.array(fraction_MUF_successful),marker='s', markerfacecolor='green', markersize=10, color='olive', linewidth=4, label="Percentage MUF Jobs Completed")
+    # ax.set_xlim([0,1])
+    ax.set_ylim([-5,110])
+    ax.set_xlabel('Utilization')
+    ax.set_ylabel('Percentage Jobs Completed Successfully')
+    plt.legend(loc="best")
+    plt.savefig('figs/{}CompletionPercentage2.png'.format(16))

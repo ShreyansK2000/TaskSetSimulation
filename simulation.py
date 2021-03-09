@@ -37,44 +37,39 @@ def Simulation(n, task_set):
                         num_jobs_completed_in_time += 1
 
                     current_job = None
-                    # # start next job at same time instance
-                    # # assume 0 context switching overhead
-                    # current_job = arrived_jobs.pop(0)
-                    # current_job.start_job(t)
-                    # num_jobs_started += 1 
-
+            
+            # Somehow if job not started when current_job was assigned, start
+            # NEVER REACHED 
             elif current_job.execution_time == current_job.remaining_exec_time:
                 current_job.start_job(t)
                 num_jobs_started += 1 
-                print("HERE")
+                # print("HERE")
             else:
+                # NEVER REACHED
                 current_job.resume_job()
-                print("HERE 1")
+                # print("HERE 1")
 
+        # If there are new jobs arrived, see if to pre-empt or not
         if len(arrived_jobs) > 0:
             # Sort the ready queue by job priority (schedule function responsible for this)
             arrived_jobs.sort(key=lambda job: job.priority)
 
-            # Relevant at t = 0 or processor finished previous job
+            # Relevant at t = 0 or processor finished previous job (or idle)
             if current_job is None:
                 current_job = arrived_jobs.pop(0)
 
                 if current_job.execution_time == current_job.remaining_exec_time:
                     current_job.start_job(t)
                     num_jobs_started += 1 
-                    # print("HERE")
                 else:
                     current_job.resume_job()
-                    # print("HERE 1")
 
             # check if next item in ready queue is higher priority
             # semantically: priority(0) > priority(1)
             # but in code, we check for smaller index
             elif arrived_jobs[0].priority < current_job.priority:
                 current_job.pause_job()
-
                 arrived_jobs.append(current_job)
-
                 current_job = arrived_jobs.pop(0)
 
                 # A new job arrives
@@ -84,11 +79,7 @@ def Simulation(n, task_set):
                     # print("HERE 3")
                 else:   # Continue the already executing job
                     current_job.resume_job()
-
-        
-        
-        # do stuff
-    # print("End of simulation ", num_jobs_started, num_jobs_completed_in_time, len(task_set))
+      
     return num_jobs_started, num_jobs_completed_in_time
 
 def RM_Simulation(n, task_set):
@@ -194,6 +185,7 @@ def simulation():
     ax.plot(task_set_utilizations, np.array(fraction_RM_successful), marker='o', markerfacecolor='blue', markersize=12, color='skyblue', linewidth=6, label="Percentage RM Jobs Completed")
     ax.plot(task_set_utilizations, np.array(fraction_SPTF_successful), marker='^',markerfacecolor='red', markersize=8, color='lightcoral', linewidth=3, label="Percentage SPTF Jobs Completed")
     ax.plot(task_set_utilizations, np.array(fraction_MUF_successful),marker='s', markerfacecolor='green', markersize=10, color='olive', linewidth=4, label="Percentage MUF Jobs Completed")
+    ax.set_ylim([-5,110])
     ax.set_xlabel('Utilization')
     ax.set_ylabel('Percentage Jobs Completed Successfully')
     plt.legend(loc="best")
